@@ -1,0 +1,162 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+source "$HOME/.zgen/zgen.zsh"
+
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
+if ! zgen saved; then
+    zgen prezto editor key-bindings 'emacs'
+    zgen prezto prompt theme 'powerlevel10k'
+    zgen prezto syntax-highlighting highlighters 'main' 'brackets' 'line'
+    zgen prezto syntax-highlighting color 'yes'
+    zgen prezto autosuggestions color 'yes'
+    zgen prezto utility correct 'no'
+    zgen prezto safe-ops 'no'.
+
+    zgen prezto
+    zgen prezto environment
+    zgen prezto terminal
+    zgen prezto editor
+    zgen prezto history
+    zgen prezto directory
+    zgen prezto spectrum
+    zgen prezto utility
+    zgen prezto completion
+    zgen prezto autosuggestions
+    zgen prezto fasd
+
+    zgen load supercrabtree/k
+
+    zgen prezto syntax-highlighting
+    zgen prezto history-substring-search
+    zgen prezto prompt
+fi
+
+test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
+
+# Should not need to run every time, but this ensures we have completion
+compinit
+
+zmodload zsh/complist
+bindkey -M menuselect '^M' .accept-line
+bindkey -M menuselect '^[a' accept-search
+
+chpwd() {
+    emulate -L zsh
+    ls -lh --color=always
+}
+
+fancy-ctrl-z () {
+  if [[ $#BUFFER -eq 0 ]]; then
+    BUFFER="fg"
+    zle accept-line -w
+  else
+    zle push-input -w
+    zle clear-screen -w
+  fi
+}
+zle -N fancy-ctrl-z
+bindkey '^Z' fancy-ctrl-z
+
+bindkey '^[q' kill-buffer
+bindkey '^[l' clear-screen
+
+_accept_suggestion() {
+    zle forward-char
+    zle accept-line
+}
+zle -N _accept_suggestion
+bindkey 'w' _accept_suggestion
+
+# Shortcuts
+alias z='vim ~/.zshrc'
+alias t='vim ~/.todo.txt'
+alias ws='cd /workspace/'
+
+alias rm='rm'
+alias cp='cp'
+alias mv='mv'
+alias sc='systemctl'
+alias vim='nvim'
+
+alias l='ls -lh --color=auto --group-directories-first'
+alias ll='ls -lah --color=auto --group-directories-first'
+
+alias tm='tmux'
+alias tl='tmux ls'
+alias tn='tmux new -As'
+ta() { [[ -z $@ ]] && tmux attach || tmux attach -t $@ }
+
+alias dus='du -hs * | sort -h'
+alias col='column -s, -t | less -S'
+alias pg='pgrep -af'
+
+alias di='docker images'
+alias din='docker inspect'
+alias dc='docker ps'
+alias dp='docker ps'
+alias dca='docker ps -a'
+alias dpa='docker ps -a'
+alias ds='docker start'
+alias da='docker attach'
+alias dn='docker network'
+alias dr='docker run'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias dpl='docker pull'
+alias dl='docker logs'
+
+source "/opt/fzf/shell/key-bindings.zsh"
+bindkey '^[r' fzf-history-widget
+
+export FZF_DEFAULT_OPTS="
+    --height=50% --reverse --inline-info
+    --bind 'tab:down,btab:up,alt-q:abort,alt-n:down,alt-p:up,alt-j:down,alt-k:up,change:top'
+    --color fg:-1,bg:-1,bg+:-1
+    --no-hscroll
+"
+export FZF_ALT_C_OPTS="--prompt='./' --preview 'tree -C {} | head -200'"
+
+v() {
+    if [[ -n $@ ]]; then
+        local file=$(fasd -f $@)
+        [[ -n $file ]] && vim "${file}"
+    else
+        local file=$(fasd -ftlR | fzf --no-sort --tiebreak=index)
+        [[ -n $file ]] && vim "${file}"
+    fi
+}
+c() {
+    if [[ -n $@ ]]; then
+        local dir=$(fasd -d $@)
+        [[ -n $dir ]] && cd "${dir}"
+    else
+        local dir=$(fasd -dtlR | fzf --no-sort --tiebreak=index)
+        [[ -n $dir ]] && cd "${dir}"
+    fi
+}
+
+_local_files() {
+    zle kill-buffer
+    local file=$(find -type f | fzf --prompt='./' --ansi --preview 'bat --color=always --style=header,grid --line-range :300 {}')
+    if [[ -n $file ]]; then
+        file=$(realpath $file)
+        zle redisplay
+        if [[ ! $(file --mime $file) =~ 'binary' ]]; then
+            BUFFER="vim \"${file}\""
+            zle accept-line
+        fi
+    else
+        zle reset-prompt
+    fi
+}
+zle -N _local_files
+bindkey '^[e' _local_files
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

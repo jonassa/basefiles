@@ -1,0 +1,5 @@
+[color]
+    ui = auto
+    interactive = auto
+    pager = true
+
