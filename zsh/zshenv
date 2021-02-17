@@ -1,4 +1,6 @@
 export PATH=/usr/bin:/usr/sbin:/opt/ibutils/bin:/usr/local/sbin:/usr/local/bin:/workspace/bin
+PATH="$HOME/.cargo/bin:$PATH"
+PATH="$HOME/go/bin:$PATH"
 export SEND_256_COLORS_TO_REMOTE=1
 export EDITOR=nvim
 export VISUAL=nvim

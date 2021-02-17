@@ -30,11 +30,11 @@ if ! zgen saved; then
     zgen prezto autosuggestions
     zgen prezto fasd
 
-    zgen load supercrabtree/k
-
     zgen prezto syntax-highlighting
     zgen prezto history-substring-search
     zgen prezto prompt
+
+    zgen load supercrabtree/k
 fi
 
 test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
@@ -111,7 +111,16 @@ alias drmi='docker rmi'
 alias dpl='docker pull'
 alias dl='docker logs'
 
-source "/opt/fzf/shell/key-bindings.zsh"
+#if [[ ! "$PATH" == */opt/fzf/bin* ]]; then
+#  export PATH="${PATH:+${PATH}:}/opt/fzf/bin"
+#fi
+#source "/opt/fzf/shell/key-bindings.zsh"
+
+if [[ ! "$PATH" == *$HOME/.fzf/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}$HOME/.fzf/bin"
+fi
+source "$HOME/.fzf/shell/key-bindings.zsh"
+
 bindkey '^[r' fzf-history-widget
 
 export FZF_DEFAULT_OPTS="
