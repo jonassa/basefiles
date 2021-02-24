@@ -26,16 +26,16 @@ aug vimrc
 	au FileType help nnoremap <silent> <expr> <buffer> q winnr('$') == 1 ? ':bd<cr>' : ':q<cr>'
 	au FileType qf nnoremap <silent> <buffer> q :close<CR>
 	au BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-	" au VimResized * wincmd =
-	" au vimrc BufEnter * set formatoptions=jncrql
-	" au FileType help wincmd o
-	" au BufEnter * if &ft ==# 'help' | wincmd o | endif
+	au VimResized * wincmd =
+	au vimrc BufEnter * set formatoptions=jncrql
+	au FileType help wincmd o
+    " au BufEnter * if &ft ==# 'help' | wincmd o | endif
 aug END
 
 " PLUGINS
-" call plug#begin(stdpath('data') . '/plugged')
+call plug#begin(stdpath('data') . '/plugged')
 
-" Plug 'sheerun/vim-polyglot'
+Plug 'sheerun/vim-polyglot'
 
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 " Plug 'junegunn/fzf.vim'
@@ -79,38 +79,38 @@ aug END
 " nnoremap <silent> cd :Directories<CR>
 " nnoremap <silent> <m-x> :Commands<CR>
 
-" Plug 'junegunn/vim-slash'
-" noremap <plug>(slash-after) zz
+Plug 'junegunn/vim-slash'
+noremap <plug>(slash-after) zz
 
-" Plug 'wellle/targets.vim'
-" aug targets
-" au User targets#mappings#user call targets#mappings#extend({
-"     \ 'b': { 'pair': [{'o':'(', 'c':')'}] },
-"     \ 'r': { 'pair': [{'o':'[', 'c':']'}] },
-"     \ 's': { 'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}] },
-"     \ 'o': { 'pair': [{'o':'(', 'c':')'}, {'o':'[', 'c':']'}, {'o':'{', 'c':'}'}, {'o':'<', 'c':'>'}] },
-"     \ 'd': { 'separator': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
-"     \                      {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
-"     \                      {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
-"     \ })
-" aug END
+Plug 'wellle/targets.vim'
+aug targets
+au User targets#mappings#user call targets#mappings#extend({
+    \ 'b': { 'pair': [{'o':'(', 'c':')'}] },
+    \ 'r': { 'pair': [{'o':'[', 'c':']'}] },
+    \ 's': { 'quote': [{'d':"'"}, {'d':'"'}, {'d':'`'}] },
+    \ 'o': { 'pair': [{'o':'(', 'c':')'}, {'o':'[', 'c':']'}, {'o':'{', 'c':'}'}, {'o':'<', 'c':'>'}] },
+    \ 'd': { 'separator': [{'d':','}, {'d':'.'}, {'d':';'}, {'d':':'}, {'d':'+'}, {'d':'-'},
+    \                      {'d':'='}, {'d':'~'}, {'d':'_'}, {'d':'*'}, {'d':'#'}, {'d':'/'},
+    \                      {'d':'\'}, {'d':'|'}, {'d':'&'}, {'d':'$'}] },
+    \ })
+aug END
 
-" Plug 'machakann/vim-sandwich/'
-" let g:sandwich_no_default_key_mappings = 1
-" let g:operator_sandwich_no_default_key_mappings = 1
-" let g:textobj_sandwich_no_default_key_mappings = 1
+Plug 'machakann/vim-sandwich/'
+let g:sandwich_no_default_key_mappings = 1
+let g:operator_sandwich_no_default_key_mappings = 1
+let g:textobj_sandwich_no_default_key_mappings = 1
 
-" Plug 'tpope/vim-commentary'
-" Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-commentary'
+Plug 'jiangmiao/auto-pairs'
 " Plug 'dkarter/bullets.vim'
 
-" Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive'
 " Plug 'tpope/vim-rhubarb'
-" Plug 'mhinz/vim-signify'
+Plug 'mhinz/vim-signify'
 
-" Plug 'RRethy/vim-illuminate'
-" Plug 'dstein64/nvim-scrollview'
-" let g:scrollview_winblend = 0
+Plug 'RRethy/vim-illuminate'
+Plug 'dstein64/nvim-scrollview'
+let g:scrollview_winblend = 0
 
 " COLORS
 " Plug 'arcticicestudio/nord-vim'
@@ -125,14 +125,14 @@ aug END
 " Plug 'kristijanhusak/vim-hybrid-material'
 " Plug 'ayu-theme/ayu-vim'
 " let ayucolor = 'mirage'
-" Plug 'sainnhe/sonokai'
-" let g:sonokai_style = 'atlantis'
-" let g:sonokai_disable_italic_comment = 1
+Plug 'sainnhe/sonokai'
+let g:sonokai_style = 'atlantis'
+let g:sonokai_disable_italic_comment = 1
 
-" call plug#end()
+call plug#end()
 
 set bg=dark
-let g:theme = readfile("/root/colorfile")[0]
+let g:theme = readfile($HOME . "/colorfile")[0]
 execute 'colorscheme ' . g:theme
 
 " let g:colors = [
@@ -157,10 +157,12 @@ execute 'colorscheme ' . g:theme
 "     else
 "         let idx = (idx - 1 % len(g:colors) + len(g:colors)) % len(g:colors)
 "     endif
+"     " START: function or command (use as fzf sink and for rotate function)
 "     let g:theme = g:colors[idx]
 "     call writefile([g:theme], "/root/colorfile")
 "     execute 'colorscheme ' . g:theme
 "     echo g:theme
+"     " END
 " endf
 
 " nnoremap <F3> :call CRotate(0)<CR>
@@ -180,10 +182,14 @@ noremap <M-e> g_
 
 nnoremap <Up> <c-u>zz
 nnoremap <Down> <c-d>zz
+nnoremap <M-j> 10gjzz
+nnoremap <M-k> 10gkzz
+nmap gj ]]
+nmap gk [[
 
 " Jumping
 nnoremap <CR> <C-]>zz
-nmap ¨ <CR>
+nnoremap ¨ <C-]>zz
 nnoremap <m-i> <c-i>
 nnoremap <m-o> <c-o>
 
@@ -196,6 +202,7 @@ nnoremap <C-c> yy
 xnoremap <C-c> y
 nnoremap <M-h> K
 inoremap <M-r> <C-r>
+map gb %
 
 " Buffers
 nnoremap <C-n> :bn<cr>
@@ -212,14 +219,15 @@ nnoremap <space>wd :w\|bd<cr>
 nnoremap <space>wa :wqa<cr>
 nnoremap <space>wq :wq!<cr>
 nnoremap <space>wn :wn<cr>
-nnoremap <space><tab> :ls h<cr>:b<space>
+nnoremap <expr> <space><tab> len(getbufinfo({'buflisted':1})) == 2 ? ":bn\<cr>" : ":ls h\<cr>:b\<space>"
 nnoremap <space>f :find<space>
 nnoremap <space>s :%s/
 xnoremap <space>s :s/
 nnoremap <silent> <space>l :nohls<cr><c-l>
 nnoremap <space>en :enew<cr>
 
-nnoremap <tab>w :w<cr>
+nnoremap <tab>s :w<cr>
+nnoremap <tab>w :wq<cr>
 nnoremap <tab>q :conf qa!<cr>
 nnoremap <tab>e :e!<cr>
 
@@ -239,6 +247,10 @@ cnoremap <M-n> <C-N>
 cnoremap <M-p> <C-P>
 imap <M-l> <C-X><C-L>
 imap <M-x> <C-X><C-F>
+
+set omnifunc=syntaxcomplete#Complete
+inoremap <expr> <M-u> pumvisible() ? "<C-e>" : "<Esc>u"
+inoremap <expr> <M-o> pumvisible() ? "<C-o>" : "<C-x><C-o>"
 
 fun! InsertTabWrapper(direction)
   let col = col('.') - 1
@@ -267,30 +279,30 @@ xnoremap <Tab> >gv
 xnoremap <S-Tab> <gv
 
 " Sandwich
-" call operator#sandwich#set('delete', 'all', 'highlight', 0)
+call operator#sandwich#set('delete', 'all', 'highlight', 0)
 
-" nmap <M-r> <Plug>(operator-sandwich-add)
-" xmap <M-r> <Plug>(operator-sandwich-add)
-" nmap ds <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
-" nmap dss <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
-" nmap cs <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
-" nmap css <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
+nmap <M-r> <Plug>(operator-sandwich-add)
+xmap <M-r> <Plug>(operator-sandwich-add)
+nmap ds <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
+nmap dss <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
+nmap cs <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
+nmap css <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
 
-" nmap <M-s> <M-r>iw
-" nmap <M-S> <m-r>iW
-" nmap <M-R> <M-r>g_
-" onoremap <silent> <sid>line :normal! ^vg_<CR>
-" nmap <M-r><M-r> <M-r><sid>line
+nmap <M-s> <M-r>iw
+nmap <M-S> <m-r>iW
+nmap <M-R> <M-r>g_
+onoremap <silent> <sid>line :normal! ^vg_<CR>
+nmap <M-r><M-r> <M-r><sid>line
 
 " Shortcuts
-" nnoremap dn dgn
-" nnoremap cn cgn
-" nmap vs vis
-" nmap co cio
-" nmap do dao
-" nmap vo vio
-" nmap go yao
-" nmap vd vid
+nnoremap dn dgn
+nnoremap cn cgn
+nmap vs vis
+nmap co cio
+nmap do dao
+nmap vo vio
+nmap go yao
+nmap vd vid
 
 " nmap cd cid
 
