@@ -26,8 +26,6 @@ if ! zgen saved; then
     zgen prezto syntax-highlighting
     zgen prezto history-substring-search
     zgen prezto prompt
-
-    zgen load supercrabtree/k
 fi
 
 test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
@@ -76,7 +74,7 @@ bindkey 'w' _accept_suggestion
 
 # Shortcuts
 alias z='vim ~/.zshrc'
-alias t='vim ~/.todo.txt'
+alias todo='vim ~/.todo.txt'
 alias ws='cd /workspace/'
 
 alias rm='rm'
@@ -93,6 +91,10 @@ alias ll='ls -laG'
 alias lh='ls -ld .?*'
 alias lr='command ls -h --color=auto -lArtG'
 
+t()  { exa --group-directories-first -lT --color always $@ | less}
+tt() { exa --group-directories-first -laT --color always $@ | less}
+t2() { exa --group-directories-first -lT -L2 --color always $@ | less}
+
 #alias tm='tmux'
 alias tl='tmux ls'
 alias tn='tmux new -As'
@@ -101,6 +103,8 @@ ta() { [[ -z $@ ]] && tmux attach || tmux attach -t $@ }
 alias dus='du -hs * | sort -h'
 alias col='column -s, -t | less -S'
 alias pg='pgrep -af'
+alias pt='pstree -h'
+alias pk='pkill'
 alias path='echo $PATH | tr ":" "\n"'
 
 # Docker
@@ -113,6 +117,7 @@ alias din='docker inspect'
 alias dr='docker run'
 alias ds='docker start'
 alias dsp='docker stop'
+alias dk='docker stop'
 alias da='docker attach'
 alias dl='docker logs'
 alias dn='docker network'
@@ -213,7 +218,8 @@ alias s='siblings'
 
 _local_files() {
     zle kill-buffer
-    local file=$(find -type f | fzf --prompt='./' --ansi --preview 'bat --color=always --style=header,grid --line-range :300 {}')
+    # local file=$(find -type f | fzf --prompt='./' --ansi --preview 'bat --color=always --style=header,grid --line-range :300 {}')
+    local file=$(find -L -type f | fzf --prompt='./' --ansi --preview 'bat --color=always --style=header,grid --line-range :300 {}')
     if [[ -n $file ]]; then
         file=$(realpath $file)
         zle redisplay
@@ -228,15 +234,30 @@ _local_files() {
 zle -N _local_files
 bindkey '^[e' _local_files
 
-fs() {
-    local -r fmt='#{session_id}:|#S|(#{session_attached} attached)'
-    { tmux display-message -p -F "$fmt" && tmux list-sessions -F "$fmt"; } \
-        | awk '!seen[$1]++' \
-        | column -t -s'|' \
-        | fzf -q '$' --reverse --prompt 'switch session: ' -1 -0 \
-        | cut -d':' -f1 \
-        | xargs tmux switch-client -t
+_kill_process() {
+    zle kill-buffer
+    local process=$(ps -N --ppid 2 -p 2 -o s,user,pid,pcpu,pmem,comm --sort -pcpu,-pmem | fzf --header-lines=1 | awk '{print $3}')
+    if [[ -n $process ]]; then
+        echo $process
+        zle redisplay
+        kill $process 2> /dev/null || sudo kill $process
+        zle accept-line
+    else
+        zle reset-prompt
+    fi
 }
+zle -N _kill_process
+bindkey '^[k' _kill_process
+
+# fs() {
+#     local -r fmt='#{session_id}:|#S|(#{session_attached} attached)'
+#     { tmux display-message -p -F "$fmt" && tmux list-sessions -F "$fmt"; } \
+#         | awk '!seen[$1]++' \
+#         | column -t -s'|' \
+#         | fzf -q '$' --reverse --prompt 'switch session: ' -1 -0 \
+#         | cut -d':' -f1 \
+#         | xargs tmux switch-client -t
+# }
 
 #fs() {
 #  local session
@@ -247,13 +268,13 @@ fs() {
 
 
 
-tm() {
-  [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
-  if [ $1 ]; then
-    tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1"); return
-  fi
-  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
-}
+# tm() {
+#   [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
+#   if [ $1 ]; then
+#     tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1"); return
+#   fi
+#   session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
+# }
 
 #compdef c=fasd_cd
 

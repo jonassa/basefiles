@@ -14,6 +14,8 @@ set timeoutlen=250
 set path=.,,**
 set gdefault
 set termguicolors
+" set bs="indent,eol,start"
+set bs="indent,eol"
 
 if exists('$TMUX')
 	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -102,13 +104,13 @@ let g:textobj_sandwich_no_default_key_mappings = 1
 
 Plug 'tpope/vim-commentary'
 Plug 'jiangmiao/auto-pairs'
-" Plug 'dkarter/bullets.vim'
+Plug 'dkarter/bullets.vim'
 
 Plug 'tpope/vim-fugitive'
 " Plug 'tpope/vim-rhubarb'
 Plug 'mhinz/vim-signify'
 
-Plug 'RRethy/vim-illuminate'
+" Plug 'RRethy/vim-illuminate'
 Plug 'dstein64/nvim-scrollview'
 let g:scrollview_winblend = 0
 
@@ -202,6 +204,7 @@ nnoremap <C-c> yy
 xnoremap <C-c> y
 nnoremap <M-h> K
 inoremap <M-r> <C-r>
+inoremap <M-r><M-r> <C-r>"
 map gb %
 
 " Buffers
@@ -210,12 +213,16 @@ nnoremap <C-p> :bp<cr>
 nnoremap <C-a> <C-^>
 nnoremap <C-x> :bp<Bar>bd! #<CR>
 
+" Windows
+nnoremap <Tab> <C-W>
+nnoremap <Tab><Tab> <C-W><C-W>
+
 " Leader/files
 nnoremap <space> :
 nnoremap <space>v :e $MYVIMRC<cr>
 nnoremap <space>q :conf qa!<cr>
 nnoremap <space>w :w<cr>
-nnoremap <space>wd :w\|bd<cr>
+nnoremap <space>wd :w\|bp\|bd! #<cr>
 nnoremap <space>wa :wqa<cr>
 nnoremap <space>wq :wq!<cr>
 nnoremap <space>wn :wn<cr>
@@ -225,11 +232,8 @@ nnoremap <space>s :%s/
 xnoremap <space>s :s/
 nnoremap <silent> <space>l :nohls<cr><c-l>
 nnoremap <space>en :enew<cr>
-
-nnoremap <tab>s :w<cr>
-nnoremap <tab>w :wq<cr>
-nnoremap <tab>q :conf qa!<cr>
-nnoremap <tab>e :e!<cr>
+nnoremap <space><bs> :e!<CR>zz
+nnoremap <space>rg :reg<CR>
 
 " Grepping
 " if executable('ag') | set grepprg=ag\ --vimgrep\ --silent | endif
@@ -297,6 +301,7 @@ nmap <M-r><M-r> <M-r><sid>line
 " Shortcuts
 nnoremap dn dgn
 nnoremap cn cgn
+nmap <M-n> *cgn
 nmap vs vis
 nmap co cio
 nmap do dao
@@ -310,4 +315,5 @@ nnoremap <M-w> viw
 nnoremap <M-W> viW
 xnoremap <M-w> y
 xnoremap <M-W> y
+
 
