@@ -102,7 +102,7 @@ ta() { [[ -z $@ ]] && tmux attach || tmux attach -t $@ }
 
 alias dus='du -hs * | sort -h'
 alias col='column -s, -t | less -S'
-alias pg='pgrep -af'
+alias pg='pgrep -laf'
 alias pt='pstree -h'
 alias pk='pkill'
 alias path='echo $PATH | tr ":" "\n"'
@@ -248,6 +248,14 @@ _kill_process() {
 }
 zle -N _kill_process
 bindkey '^[k' _kill_process
+
+_parent_dir() {
+    cd ..
+    zle kill-buffer
+    zle accept-line
+}
+zle -N _parent_dir
+bindkey '^[[1;3A' _parent_dir
 
 # fs() {
 #     local -r fmt='#{session_id}:|#S|(#{session_attached} attached)'

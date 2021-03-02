@@ -115,18 +115,18 @@ Plug 'dstein64/nvim-scrollview'
 let g:scrollview_winblend = 0
 
 " COLORS
-" Plug 'arcticicestudio/nord-vim'
-" Plug 'joshdick/onedark.vim'
-" Plug 'romgrk/doom-one.vim'
-" Plug 'jdkanani/vim-material-theme'
-" Plug 'drewtempelmeyer/palenight.vim'
-" Plug 'ajmwagar/vim-deus'
-" Plug 'Rigellute/rigel'
-" Plug 'yuttie/inkstained-vim'
-" Plug 'tyrannicaltoucan/vim-quantum'
-" Plug 'kristijanhusak/vim-hybrid-material'
-" Plug 'ayu-theme/ayu-vim'
-" let ayucolor = 'mirage'
+Plug 'arcticicestudio/nord-vim'
+Plug 'joshdick/onedark.vim'
+Plug 'romgrk/doom-one.vim'
+Plug 'jdkanani/vim-material-theme'
+Plug 'drewtempelmeyer/palenight.vim'
+Plug 'ajmwagar/vim-deus'
+Plug 'Rigellute/rigel'
+Plug 'yuttie/inkstained-vim'
+Plug 'tyrannicaltoucan/vim-quantum'
+Plug 'kristijanhusak/vim-hybrid-material'
+Plug 'ayu-theme/ayu-vim'
+let ayucolor = 'mirage'
 Plug 'sainnhe/sonokai'
 let g:sonokai_style = 'atlantis'
 let g:sonokai_disable_italic_comment = 1
@@ -137,38 +137,41 @@ set bg=dark
 let g:theme = readfile($HOME . "/colorfile")[0]
 execute 'colorscheme ' . g:theme
 
-" let g:colors = [
-"             \ "nord",
-"             \ "onedark",
-"             \ "doom-one",
-"             \ "material-theme",
-"             \ "palenight",
-"             \ "deus",
-"             \ "rigel",
-"             \ "inkstained",
-"             \ "quantum",
-"             \ "hybrid_material",
-"             \ "ayu",
-"             \ "sonokai",
-"             \ ]
+let g:colors = [
+            \ "nord",
+            \ "onedark",
+            \ "doom-one",
+            \ "material-theme",
+            \ "palenight",
+            \ "deus",
+            \ "rigel",
+            \ "inkstained",
+            \ "quantum",
+            \ "hybrid_material",
+            \ "ayu",
+            \ "sonokai",
+            \ ]
 
-" fun! CRotate(direction)
-"     let idx = index(g:colors, g:theme)
-"     if a:direction == 0
-"         let idx = (idx + 1) % len(g:colors)
-"     else
-"         let idx = (idx - 1 % len(g:colors) + len(g:colors)) % len(g:colors)
-"     endif
-"     " START: function or command (use as fzf sink and for rotate function)
-"     let g:theme = g:colors[idx]
-"     call writefile([g:theme], "/root/colorfile")
-"     execute 'colorscheme ' . g:theme
-"     echo g:theme
-"     " END
-" endf
+" START: function or command (use as fzf sink and for rotate function)
+fun! SetColors(colorscheme)
+    let g:theme = a:colorscheme
+    call writefile([g:theme], $HOME . "/colorfile")
+    execute 'colorscheme ' . g:theme
+    echo g:theme
+endf
 
-" nnoremap <F3> :call CRotate(0)<CR>
-" nnoremap <F4> :call CRotate(1)<CR>
+fun! CRotate(direction)
+    let idx = index(g:colors, g:theme)
+    if a:direction == 0
+        let idx = (idx + 1) % len(g:colors)
+    else
+        let idx = (idx - 1 % len(g:colors) + len(g:colors)) % len(g:colors)
+    endif
+    call SetColors(g:colors[idx])
+endf
+
+nnoremap <silent> <F3> :call CRotate(0)<CR>
+nnoremap <silent> <F4> :call CRotate(1)<CR>
 
 " KEYBINDS
 noremap  <M-q> <Esc>
