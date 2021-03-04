@@ -28,7 +28,12 @@
   -
     command: sh -c 'test -f $HOME/.local/share/nvim/site/autoload/plug.vim || curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     description: Installing vim-plug
+
   -
     command: bin/install_rust.sh
     description: Installing Rust tools
+
+  -
+    command: bin/install_zgen.sh
+    description: Installing zgen
 
