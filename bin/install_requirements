@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# zgen
+if [[ ! -d $HOME/.zgen ]]; then
+    git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+fi
+
+# Neovim
+if ! command -v nvim &> /dev/null; then
+    cd "$HOME/bin"
+    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+    chmod +x nvim.appimage
+    ln -s nvim.appimage nvim
+else
+    echo "$(nvim -v | head -1) is already installed"
+fi
+
+# Rust tools
+if [[ ! -d $HOME/.cargo ]]; then
+    curl https://sh.rustup.rs -sSf | sh -s -- --profile minimal --no-modify-path -y
+
+    # for crate in $crates; do
+    #     cargo install --locked --force $crate
+    # done
+fi
+
+crates='bat fd-find ripgrep exa uq git-delta xsv sd'
+cargo install --locked $crates
+
