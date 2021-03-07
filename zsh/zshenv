@@ -1,15 +1,21 @@
-# CentOS
-export SEND_256_COLORS_TO_REMOTE=1
+pathadd() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="${PATH:+$PATH:}$1"
+    fi
+}
 
-export PATH=/usr/bin:/usr/sbin:/opt/ibutils/bin:/usr/local/sbin:/usr/local/bin:/workspace/bin
-PATH="$HOME/.cargo/bin:$PATH"
-PATH="$HOME/go/bin:$PATH"
-PATH="$HOME/bin:$PATH"
+# pathadd "$HOME/bin"
+# pathadd "$HOME/.local/bin"
+pathadd "$HOME/.cargo/bin"
+# pathadd "$HOME/.npm-global/bin"
+# pathadd "$HOME/go/bin"
+
+unset -f pathadd
 
 export EDITOR=nvim
 export VISUAL=nvim
+export LESS='-iRF'
 export SYSTEMD_EDITOR=nvim
 export SYSTEMD_PAGER=less
-export LESS='-iRF'
-export BAT_THEME='ansi-dark'
+export BAT_THEME='ansi'
 
