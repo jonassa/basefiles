@@ -10,7 +10,7 @@ set inccommand=split
 set ignorecase
 set smartcase
 set mouse=nv
-set timeoutlen=250
+set notimeout
 set path=.,,**
 set gdefault
 set termguicolors
@@ -32,7 +32,12 @@ aug vimrc
 	au vimrc BufEnter * set formatoptions=jncrql
 	au FileType help wincmd o
     " au BufEnter * if &ft ==# 'help' | wincmd o | endif
+    au FileType netrw setlocal bufhidden=delete
 aug END
+
+" Netrw
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
 
 " PLUGINS
 call plug#begin(stdpath('data') . '/plugged')
@@ -103,8 +108,10 @@ let g:operator_sandwich_no_default_key_mappings = 1
 let g:textobj_sandwich_no_default_key_mappings = 1
 
 Plug 'tpope/vim-commentary'
-Plug 'jiangmiao/auto-pairs'
+" Plug 'jiangmiao/auto-pairs'
 Plug 'dkarter/bullets.vim'
+
+Plug 'andymass/vim-matchup'
 
 Plug 'tpope/vim-fugitive'
 " Plug 'tpope/vim-rhubarb'
@@ -152,7 +159,6 @@ let g:colors = [
             \ "sonokai",
             \ ]
 
-" START: function or command (use as fzf sink and for rotate function)
 fun! SetColors(colorscheme)
     let g:theme = a:colorscheme
     call writefile([g:theme], $HOME . "/colorfile")
@@ -211,31 +217,34 @@ inoremap <M-r><M-r> <C-r>"
 map gb %
 
 " Buffers
-nnoremap <C-n> :bn<cr>
-nnoremap <C-p> :bp<cr>
-nnoremap <C-a> <C-^>
-nnoremap <C-x> :bp<Bar>bd! #<CR>
+nnoremap <silent> <C-n> :bn<cr>
+nnoremap <silent> <C-p> :bp<cr>
+nnoremap <silent> <C-a> <C-^>
+nnoremap <silent> <C-x> :bp<Bar>bd! #<CR>
 
 " Windows
-nnoremap <Tab> <C-W>
-nnoremap <Tab><Tab> <C-W><C-W>
+" nnoremap <Tab> <C-W>
+" nnoremap <Tab><Tab> <C-W><C-W>
 
 " Leader/files
 nnoremap <space> :
 nnoremap <space>v :e $MYVIMRC<cr>
 nnoremap <space>q :conf qa!<cr>
-nnoremap <space>w :w<cr>
+nnoremap <space>s :w<cr>
+nnoremap <space>ww :w<cr>
 nnoremap <space>wd :w\|bp\|bd! #<cr>
 nnoremap <space>wa :wqa<cr>
 nnoremap <space>wq :wq!<cr>
 nnoremap <space>wn :wn<cr>
 nnoremap <expr> <space><tab> len(getbufinfo({'buflisted':1})) == 2 ? ":bn\<cr>" : ":ls h\<cr>:b\<space>"
 nnoremap <space>f :find<space>
-nnoremap <space>s :%s/
-xnoremap <space>s :s/
+nnoremap <space>e :e<space>
 nnoremap <silent> <space>l :nohls<cr><c-l>
-nnoremap <space>en :enew<cr>
-nnoremap <space><bs> :e!<CR>zz
+nnoremap <silent> <space><bs> :e!<CR>zz
+nnoremap <space>d :e!<CR>zz
+" nnoremap <space>s :%s/
+" xnoremap <space>s :s/
+" nnoremap <space>en :enew<cr>
 nnoremap <space>rg :reg<CR>
 
 " Grepping
@@ -245,7 +254,7 @@ nnoremap <space>rg :reg<CR>
 
 " Run
 command! -nargs=* R up|!%:p <args>
-nnoremap <space>r :R<cr>
+" nnoremap <space>r :R<cr>
 
 " Completion
 inoremap <M-n> <C-N>
@@ -314,9 +323,14 @@ nmap vd vid
 
 " nmap cd cid
 
+noremap <M-f> <C-Right>
+noremap <M-b> <C-Left>
+
+nnoremap <m-d> dW
+nnoremap <m-D> daW
+
 nnoremap <M-w> viw
 nnoremap <M-W> viW
 xnoremap <M-w> y
 xnoremap <M-W> y
-
 

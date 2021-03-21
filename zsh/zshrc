@@ -1,10 +1,7 @@
 ttyctl -f
 
-# ENVIRONMENT
-autoload -Uz bracketed-paste-url-magic
-zle -N bracketed-paste bracketed-paste-url-magic
-autoload -Uz url-quote-magic
-zle -N self-insert url-quote-magic
+export TERM=xterm-256color
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 # Allow mapping Ctrl+S and Ctrl+Q shortcuts
 # [[ -r ${TTY:-} && -w ${TTY:-} && $+commands[stty] == 1 ]] && stty -ixon <$TTY >$TTY
@@ -101,6 +98,11 @@ bindkey '^[[F' end-of-line
 # bindkey '^[p' up-history
 # bindkey '^[n' down-history
 
+zmodload zsh/complist
+bindkey -M menuselect '^M' .accept-line
+bindkey -M menuselect '^[a' accept-search
+bindkey '^[[Z' reverse-menu-complete
+
 bindkey '^[q' kill-buffer
 bindkey '^[l' clear-screen
 bindkey '^[u' undo
@@ -144,12 +146,19 @@ chpwd() {
 }
 
 # UTILITY
+alias help='run-help'
+unalias run-help
 autoload -Uz run-help
 autoload -Uz run-help-git
 autoload -Uz run-help-ip
 autoload -Uz run-help-openssl
 autoload -Uz run-help-sudo
 autoload -Uz run-help-svn
+
+autoload -Uz bracketed-paste-url-magic
+zle -N bracketed-paste bracketed-paste-url-magic
+autoload -Uz url-quote-magic
+zle -N self-insert url-quote-magic
 
 # export GREP_COLORS="mt=37;45"
 # alias p='less'
@@ -223,6 +232,9 @@ zstyle ':completion:*:history-words' menu yes
 # Environmental Variables
 zstyle ':completion::*:(-command-|export):*' fake-parameters ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-}
 
+# TODO: does this work?
+zstyle ':completion::complete:*' gain-privileges 1
+
 # # Don't complete uninteresting users...
 # zstyle ':completion:*:*:*:users' ignored-patterns \
 #   adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
@@ -259,61 +271,6 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 # zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
 # zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
 
-# Nødvendig for å kunne binde til menuselect keymap
-zmodload zsh/complist
-bindkey -M menuselect '^M' .accept-line
-bindkey -M menuselect '^[a' accept-search
-bindkey '^[[Z' reverse-menu-complete
-
-
-# PROMPT
-# This is probably handled by prompt plugin
-# autoload -Uz promptinit && promptinit
-
-# TODO:
-# fzf
-# fasd
-# direnv
-
-source "$HOME/.zgen/zgen.zsh"
-
-if ! zgen saved; then
-    # zgen prezto fasd
-
-    # Prezto order
-    # zgen prezto syntax-highlighting
-    # zgen prezto history-substring-search
-    # zgen prezto autosuggestions
-    # zgen prezto prompt
-
-    # My order
-    # zsh-users/zsh-completions
-    # zsh-users/zsh-autosuggestions
-    # zsh-users/zsh-syntax-highlighting
-    # zsh-users/zsh-history-substring-search
-
-    zgen load zsh-users/zsh-completions src
-
-    zgen load zsh-users/zsh-syntax-highlighting
-    zgen load zsh-users/zsh-history-substring-search
-    zgen load zsh-users/zsh-autosuggestions
-
-    zgen load romkatv/powerlevel10k powerlevel10k
-
-    zgen save
-fi
-
-# After plugin load
-
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets line)
-ZSH_HIGHLIGHT_STYLES[path]=none
-
-# bindkey '^[[A' history-substring-search-up
-# bindkey '^[[B' history-substring-search-down
-
-
-
-
 available() {
     command -v "$1" &> /dev/null
 }
@@ -343,13 +300,16 @@ alias z='vim ~/.zshrc'
 alias todo='vim ~/.todo.txt'
 alias ws='cd /workspace/'
 
-alias rm='rm'
-alias cp='cp'
-alias mv='mv'
+alias h='history -nd -50'
 alias sc='systemctl'
 alias vim='nvim'
 alias mx='chmod +x'
+alias ..='cd ..'
+
 if available bat; then alias cat='bat'; fi
+alias ag='ag --hidden --ignore .git'
+alias rg='rg -uuS' # hidden + ignored, smartcase
+alias fd='fd -H'
 
 alias ls='ls -h --color=auto --group-directories-first'
 alias l='ls -lG'
@@ -368,7 +328,7 @@ ta() { [[ -z $@ ]] && tmux attach || tmux attach -t $@ }
 
 alias dus='du -hs * | sort -h'
 alias col='column -s, -t | less -S'
-alias pg='pgrep -laf'
+alias pg='pgrep -laif'
 alias pt='pstree -h'
 alias pk='pkill'
 alias path='echo $PATH | tr ":" "\n"'
@@ -390,6 +350,7 @@ alias dn='docker network'
 alias drm='docker rm'
 alias drmi='docker rmi'
 alias dcp='docker container prune -f'
+alias dv='docker volume'
 
 # Git
 clone() {git clone $1 && cd $(basename $1 .git)}
@@ -435,46 +396,6 @@ function gi() { curl -sLw n https://www.gitignore.io/api/$@ ;}
 #todo: git extras has ignore command?
 alias redit='vim $(git ls-tree --full-tree -r --name-only HEAD | fzf)'
 alias gignore='vim $(git rev-parse --show-toplevel)/.gitignore'
-
-
-#if [[ ! "$PATH" == */opt/fzf/bin* ]]; then
-#  export PATH="${PATH:+${PATH}:}/opt/fzf/bin"
-#fi
-#source "/opt/fzf/shell/key-bindings.zsh"
-
-# if [[ ! "$PATH" == *$HOME/.fzf/bin* ]]; then
-#   export PATH="${PATH:+${PATH}:}$HOME/.fzf/bin"
-# fi
-# source "$HOME/.fzf/shell/key-bindings.zsh"
-
-bindkey '^[r' fzf-history-widget
-
-export FZF_DEFAULT_OPTS="
-    --height=50% --reverse --inline-info
-    --bind 'tab:down,btab:up,alt-q:abort,alt-n:down,alt-p:up,alt-j:down,alt-k:up,change:top'
-    --color fg:-1,bg:-1,bg+:-1
-    --no-hscroll
-"
-export FZF_ALT_C_OPTS="--prompt='./' --preview 'tree -C {} | head -200'"
-
-v() {
-    if [[ -n $@ ]]; then
-        local file=$(fasd -f $@)
-        [[ -n $file ]] && vim "${file}"
-    else
-        local file=$(fasd -ftlR | fzf --no-sort --tiebreak=index)
-        [[ -n $file ]] && vim "${file}"
-    fi
-}
-c() {
-    if [[ -n $@ ]]; then
-        local dir=$(fasd -d $@)
-        [[ -n $dir ]] && cd "${dir}"
-    else
-        local dir=$(fasd -dtlR | fzf --no-sort --tiebreak=index)
-        [[ -n $dir ]] && cd "${dir}"
-    fi
-}
 
 siblings() {
     local target=$(command fd -d1 -td . .. --color=always | ag -v ${PWD:t} | fzf -1 -0 --ansi )
@@ -533,14 +454,12 @@ bindkey '^[[1;3A' _parent_dir
 #         | xargs tmux switch-client -t
 # }
 
-#fs() {
-#  local session
-#  session=$(tmux list-sessions -F "#{session_name}" | \
-#    fzf --query="$1" --select-1 --exit-0) &&
-#  tmux switch-client -t "$session"
-#}
-
-
+# fs() {
+#   local session
+#   session=$(tmux list-sessions -F "#{session_name}" | \
+#     fzf --query="$1" --select-1 --exit-0) &&
+#   tmux switch-client -t "$session"
+# }
 
 # tm() {
 #   [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
@@ -550,7 +469,97 @@ bindkey '^[[1;3A' _parent_dir
 #   session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
 # }
 
+# PLUGINS
+
+# TODO: install fzf as a zsh plugin or using install script
+if [[ ! "$PATH" == *$HOME/.fzf/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}$HOME/.fzf/bin"
+fi
+
+source "$HOME/.fzf/shell/key-bindings.zsh"
+
+bindkey '^[r' fzf-history-widget
+
+export FZF_DEFAULT_OPTS="
+    --height=50% --reverse --inline-info
+    --bind 'tab:down,btab:up,alt-q:abort,alt-n:down,alt-p:up,alt-j:down,alt-k:up,change:top'
+    --color fg:-1,bg:-1,bg+:-1
+    --no-hscroll
+"
+export FZF_ALT_C_OPTS="--prompt='./' --preview 'tree -C {} | head -200'"
+
+# TODO: install direnv
+eval "$(direnv hook zsh)"
+# eval "$(/home/jonas/anaconda3/bin/conda shell.zsh hook)"
+# eval "$(/opt/miniconda3/bin/conda shell.zsh hook)"
+
+eval "$(fasd --init zsh-hook zsh-ccomp zsh-ccomp-install zsh-wcomp zsh-wcomp-install)"
 #compdef c=fasd_cd
+
+v() {
+    if [[ -n $@ ]]; then
+        local file=$(fasd -f $@)
+        [[ -n $file ]] && vim "${file}"
+    else
+        local file=$(fasd -ftlR | fzf --no-sort --tiebreak=index)
+        [[ -n $file ]] && vim "${file}"
+    fi
+}
+c() {
+    if [[ -n $@ ]]; then
+        local dir=$(fasd -d $@)
+        [[ -n $dir ]] && cd "${dir}"
+    else
+        local dir=$(fasd -dtlR | fzf --no-sort --tiebreak=index)
+        [[ -n $dir ]] && cd "${dir}"
+    fi
+}
+
+_v() {
+    zle kill-buffer
+    local file=$(fasd -ftlR | fzf --exact --no-sort --tiebreak=index)
+    if [[ -n $file ]]; then
+        zle redisplay
+        BUFFER="vim \"${file}\""
+        zle accept-line
+    else
+        zle reset-prompt
+    fi
+}
+zle -N _v
+bindkey '^[v' _v
+
+
+source "$HOME/.zgen/zgen.zsh"
+
+if ! zgen saved; then
+
+    zgen load zsh-users/zsh-completions src
+
+    zgen load zsh-users/zsh-syntax-highlighting
+    zgen load zsh-users/zsh-history-substring-search
+    zgen load zsh-users/zsh-autosuggestions
+
+    zgen load romkatv/powerlevel10k powerlevel10k
+
+    zgen save
+fi
+
+# After plugin load
+
+# Custom completion
+fpath=($HOME/.zcomp ${fpath})
+
+# ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets line)
+#ZSH_HIGHLIGHT_STYLES[path]=none
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+# In case prompt plugin/zgen is not available
+# autoload -Uz promptinit && promptinit
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+

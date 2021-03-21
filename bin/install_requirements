@@ -1,12 +1,31 @@
 #!/usr/bin/env bash
 
+function available() {
+    command -v "$1" &> /dev/null
+}
+
 # zgen
 if [[ ! -d $HOME/.zgen ]]; then
+    echo "Installing zgen"
     git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+else
+    echo "zgen is already installed"
+fi
+
+# Extra completion
+url_docker='https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker'
+if [[ ! -d $HOME/.zcomp ]]; then
+    echo "Installing extra completion"
+    mkdir $HOME/.zcomp
+    curl -L $url_docker -o .zcomp/_docker
+    rm $HOME/.zcompdump
+else
+    echo "Extra completion is already installed"
 fi
 
 # Neovim
-if ! command -v nvim &> /dev/null; then
+if ! available nvim; then
+    echo "Installing Neovim"
     cd "$HOME/bin"
     curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
     chmod +x nvim.appimage
@@ -15,15 +34,35 @@ else
     echo "$(nvim -v | head -1) is already installed"
 fi
 
-# Rust tools
-if [[ ! -d $HOME/.cargo ]]; then
-    curl https://sh.rustup.rs -sSf | sh -s -- --profile minimal --no-modify-path -y
-
-    # for crate in $crates; do
-    #     cargo install --locked --force $crate
-    # done
+# vim-plug
+if [ ! -f "$HOME/.local/share/nvim/site/autoload/plug.vim" ]; then
+    echo "Installing vim-plug"
+    curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+else
+    echo "vim-plug is already installed"
 fi
 
-crates='bat fd-find ripgrep exa uq git-delta xsv sd'
-cargo install --locked $crates
+# Rust
+if [[ ! -d "$HOME/.cargo" ]]; then
+    echo "Installing Rust"
+    curl https://sh.rustup.rs -sSf | sh -s -- --profile minimal --no-modify-path -y
+else
+    echo "Rust is already installed"
+fi
 
+# Rust tools
+crates='bat fd-find ripgrep exa uq git-delta xsv sd hyperfine procs'
+# cargo install --locked $crates
+installed_crates=$(cargo install --list)
+for c in $crates; do
+    if ! grep $c <<< $installed_crates > /dev/null; then
+    cargo install --locked $c
+    fi
+done
+
+# fasd
+# git clone https://github.com/clvv/fasd.git 
+# cd fasd
+# PREFIX=$HOME/.local make install
+
+# TODO: fasd, direnv, fzf
