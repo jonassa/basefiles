@@ -297,6 +297,7 @@ bindkey 'w' _accept_suggestion
 
 # Shortcuts
 alias z='vim ~/.zshrc'
+alias vr='vim ~/.config/nvim/init.vim'
 alias todo='vim ~/.todo.txt'
 alias ws='cd /workspace/'
 
@@ -305,6 +306,7 @@ alias sc='systemctl'
 alias vim='nvim'
 alias mx='chmod +x'
 alias ..='cd ..'
+alias ...='cd ../..'
 
 if available bat; then alias cat='bat'; fi
 alias ag='ag --hidden --ignore .git'
@@ -374,7 +376,9 @@ alias gfp='git fetch --prune'
 alias gfa='git fetch --all --prune'
 alias gm='git merge'
 alias gpl='git pull'
+alias pull='git pull'
 alias gpu='git push'
+alias push='git push'
 alias gsh='git show'
 alias gl='git log --oneline'
 alias gll='git log --oneline --all'
@@ -529,6 +533,30 @@ _v() {
 zle -N _v
 bindkey '^[v' _v
 
+_e() {
+    zle kill-buffer
+    # local var=$( (env; declare -x; set) | sort -u | cut -d= -f1 | fzf)
+    local var=$( declare | grep "^\S\+=" | cut -d= -f1 | fzf )
+    if [[ -n $var ]]; then
+        zle redisplay
+        BUFFER="echo \$$var"
+        zle accept-line
+    else
+        zle reset-prompt
+    fi
+}
+zle -N _e
+bindkey '€' _e
+
+_parent_dir() {
+    cd ..
+    zle kill-buffer
+    zle accept-line
+}
+zle -N _parent_dir
+bindkey '^U'  _parent_dir
+
+
 
 source "$HOME/.zgen/zgen.zsh"
 
@@ -562,4 +590,19 @@ bindkey '^[[B' history-substring-search-down
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/root/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/root/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/root/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/root/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 

@@ -14,7 +14,6 @@ set notimeout
 set path=.,,**
 set gdefault
 set termguicolors
-" set bs="indent,eol,start"
 set bs="indent,eol"
 
 if exists('$TMUX')
@@ -25,14 +24,14 @@ endif
 aug vimrc
 	au!
 	au BufWritePost $MYVIMRC source $MYVIMRC
-	au FileType help nnoremap <silent> <expr> <buffer> q winnr('$') == 1 ? ':bd<cr>' : ':q<cr>'
-	au FileType qf nnoremap <silent> <buffer> q :close<CR>
+	au vimrc BufEnter * set formatoptions=jncrql
 	au BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 	au VimResized * wincmd =
-	au vimrc BufEnter * set formatoptions=jncrql
+    au FileType netrw setlocal bufhidden=delete
+	au FileType qf nnoremap <silent> <buffer> q :close<CR>
+	au FileType help nnoremap <silent> <expr> <buffer> q winnr('$') == 1 ? ':bd<cr>' : ':q<cr>'
 	au FileType help wincmd o
     " au BufEnter * if &ft ==# 'help' | wincmd o | endif
-    au FileType netrw setlocal bufhidden=delete
 aug END
 
 " Netrw
@@ -44,47 +43,66 @@ call plug#begin(stdpath('data') . '/plugged')
 
 Plug 'sheerun/vim-polyglot'
 
-" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
-" Plug 'junegunn/fzf.vim'
+" packadd nvim-treesitter
+
+" lua << EOF
+"   require'nvim-treesitter.configs'.setup {
+"     ensure_installed = {"c", "bash", "python"},
+"     highlight = {
+"       enable = true,
+"       use_languagetree = false,
+"     },
+"     indent = {
+"       enable = false
+"     },
+"     incremental_selection = {
+"       enable = true,
+"       keymaps = {
+"         init_selection = "<m-w>",
+"         node_incremental = "<m-w>",
+"         node_decremental = "<m-W>",
+"       },
+"     },
+"   }
+" EOF
+
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
+
+let g:fzf_layout = { 'window': { 'width': 0.618, 'height': 0.4 } }
 
 " let g:fzf_layout = { 'down': '~25%' }
-" let g:fzf_nvim_statusline = 0
-" let g:fzf_buffers_jump = 1
-
 " au! FileType fzf
 " au  FileType fzf set laststatus=0 noshowmode noruler
 "             \| au BufLeave <buffer> set laststatus=2 showmode ruler
 
-" let g:fzf_colors =
-"           \ { 'fg':      ['fg', 'Normal'],
-"             \ 'bg':      ['bg', 'Normal'],
-"             \ 'hl':      ['fg', 'Statement'],
-"             \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-"             \ 'bg+':     ['bg', 'Normal'],
-"             \ 'hl+':     ['fg', 'SpecialComment'],
-"             \ 'info':    ['fg', 'PreProc'],
-"             \ 'border':  ['fg', 'Ignore'],
-"             \ 'prompt':  ['fg', 'Conditional'],
-"             \ 'pointer': ['fg', 'Exception'],
-"             \ 'marker':  ['fg', 'Keyword'],
-"             \ 'spinner': ['fg', 'Label'],
-"             \ 'header':  ['fg', 'Comment'] }
+let g:fzf_nvim_statusline = 0
+let g:fzf_buffers_jump = 1
 
-" command! -nargs=* -complete=dir Directories call fzf#run(fzf#wrap(
-"             \ {'source': 'fd . -H -td ~',
-"             \  'sink': 'cd'}))
+let g:fzf_colors =
+          \ { 'fg':      ['fg', 'Normal'],
+            \ 'bg':      ['bg', 'Normal'],
+            \ 'hl':      ['fg', 'Statement'],
+            \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+            \ 'bg+':     ['bg', 'Normal'],
+            \ 'hl+':     ['fg', 'SpecialComment'],
+            \ 'info':    ['fg', 'PreProc'],
+            \ 'border':  ['fg', 'Ignore'],
+            \ 'prompt':  ['fg', 'Conditional'],
+            \ 'pointer': ['fg', 'Exception'],
+            \ 'marker':  ['fg', 'Keyword'],
+            \ 'spinner': ['fg', 'Label'],
+            \ 'header':  ['fg', 'Comment'] }
 
-" imap <C-X><C-F> <plug>(fzf-complete-path)
-" imap <C-X><C-L> <plug>(fzf-complete-line)
+command! -nargs=* -complete=dir Directories call fzf#run(fzf#wrap(
+            \ {'source': 'fd . -H -td ~',
+            \  'sink': 'cd'}))
 
-" nnoremap <silent> <space>fe :Files<CR>
-" nnoremap <silent> <space>fh :Files ~<CR>
-" nnoremap <silent> <space>fr :History<CR>
-" nnoremap          <space>fl :Locate<space>
-" nnoremap <silent> <space>fp :GFiles<CR>
-
-" nnoremap <silent> cd :Directories<CR>
-" nnoremap <silent> <m-x> :Commands<CR>
+imap <C-X><C-F> <plug>(fzf-complete-path)
+imap <C-X><C-L> <plug>(fzf-complete-line)
 
 Plug 'junegunn/vim-slash'
 noremap <plug>(slash-after) zz
@@ -108,10 +126,12 @@ let g:operator_sandwich_no_default_key_mappings = 1
 let g:textobj_sandwich_no_default_key_mappings = 1
 
 Plug 'tpope/vim-commentary'
-" Plug 'jiangmiao/auto-pairs'
 Plug 'dkarter/bullets.vim'
 
 Plug 'andymass/vim-matchup'
+
+" Plug 'jiangmiao/auto-pairs'
+Plug 'cohama/lexima.vim'
 
 Plug 'tpope/vim-fugitive'
 " Plug 'tpope/vim-rhubarb'
@@ -140,6 +160,7 @@ let g:sonokai_disable_italic_comment = 1
 
 call plug#end()
 
+" THEME
 set bg=dark
 let g:theme = readfile($HOME . "/colorfile")[0]
 execute 'colorscheme ' . g:theme
@@ -215,6 +236,7 @@ nnoremap <M-h> K
 inoremap <M-r> <C-r>
 inoremap <M-r><M-r> <C-r>"
 map gb %
+nnoremap gr :%s/\<<c-r><c-w>\>/
 
 " Buffers
 nnoremap <silent> <C-n> :bn<cr>
@@ -222,12 +244,9 @@ nnoremap <silent> <C-p> :bp<cr>
 nnoremap <silent> <C-a> <C-^>
 nnoremap <silent> <C-x> :bp<Bar>bd! #<CR>
 
-" Windows
-" nnoremap <Tab> <C-W>
-" nnoremap <Tab><Tab> <C-W><C-W>
-
 " Leader/files
 nnoremap <space> :
+nnoremap <space><space> <Esc>
 nnoremap <space>v :e $MYVIMRC<cr>
 nnoremap <space>q :conf qa!<cr>
 nnoremap <space>s :w<cr>
@@ -236,25 +255,42 @@ nnoremap <space>wd :w\|bp\|bd! #<cr>
 nnoremap <space>wa :wqa<cr>
 nnoremap <space>wq :wq!<cr>
 nnoremap <space>wn :wn<cr>
-nnoremap <expr> <space><tab> len(getbufinfo({'buflisted':1})) == 2 ? ":bn\<cr>" : ":ls h\<cr>:b\<space>"
+" nnoremap <expr> <space><tab> len(getbufinfo({'buflisted':1})) == 2 ? ":bn\<cr>" : ":ls h\<cr>:b\<space>"
 nnoremap <space>f :find<space>
-nnoremap <space>e :e<space>
+" nnoremap <space>e :e<space>
 nnoremap <silent> <space>l :nohls<cr><c-l>
 nnoremap <silent> <space><bs> :e!<CR>zz
 nnoremap <space>d :e!<CR>zz
+" nnoremap <space>r :e!<CR>zz
 " nnoremap <space>s :%s/
 " xnoremap <space>s :s/
 " nnoremap <space>en :enew<cr>
-nnoremap <space>rg :reg<CR>
+" nnoremap <space>rg :reg<CR>
+
+nnoremap <silent> <expr> <space><tab> len(getbufinfo({'buflisted':1})) == 2 ? ":bn\<CR>" : ":Buffers<CR>"
+nnoremap <silent> <space>e :Files<CR>
+nnoremap <silent> <space>g :GFiles<CR>
+nnoremap <silent> <space>r :History<CR>
+nnoremap <silent> <m-x> :Commands<CR>
+nnoremap <silent> <space>* :Grep "\b<cword>\b"<CR>
+nnoremap <space>/ :Ag<Space>
+nnoremap <silent> <C-G> :Ag<CR>
+nnoremap <silent> <space>a :Ag<CR>
+nnoremap <silent> <space>' :Marks<CR>
+nnoremap <silent> <space>j :Vista finder<CR>
+nnoremap <silent> <space>h  :Helptags<CR>
+
+nnoremap <silent> cd :Directories<CR>
 
 " Grepping
 " if executable('ag') | set grepprg=ag\ --vimgrep\ --silent | endif
 " command! -nargs=? -complete=file_in_path Grep silent grep! <args>
-" nmap <silent> <leader>o <Plug>(qf_qf_toggle)
+" nmap <silent> <space>o <Plug>(qf_qf_toggle)
 
 " Run
 command! -nargs=* R up|!%:p <args>
-" nnoremap <space>r :R<cr>
+nnoremap <F1> :R<cr>
+nnoremap <F12> :R<cr>
 
 " Completion
 inoremap <M-n> <C-N>
@@ -293,12 +329,15 @@ nmap <M-C> :t-1<CR>gccj
 " Indenting
 xnoremap <Tab> >gv
 xnoremap <S-Tab> <gv
+nmap < <<
+nmap > >>
 
 " Sandwich
 call operator#sandwich#set('delete', 'all', 'highlight', 0)
 
 nmap <M-r> <Plug>(operator-sandwich-add)
 xmap <M-r> <Plug>(operator-sandwich-add)
+xmap <M-s> <Plug>(operator-sandwich-add)
 nmap ds <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
 nmap dss <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
 nmap cs <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
@@ -311,6 +350,8 @@ onoremap <silent> <sid>line :normal! ^vg_<CR>
 nmap <M-r><M-r> <M-r><sid>line
 
 " Shortcuts
+nnoremap vv viw
+nnoremap VV viW
 nnoremap dn dgn
 nnoremap cn cgn
 nmap <M-n> *cgn
@@ -320,8 +361,9 @@ nmap do dao
 nmap vo vio
 nmap go yao
 nmap vd vid
-
 " nmap cd cid
+
+nnoremap dp yyp
 
 noremap <M-f> <C-Right>
 noremap <M-b> <C-Left>
@@ -333,4 +375,6 @@ nnoremap <M-w> viw
 nnoremap <M-W> viW
 xnoremap <M-w> y
 xnoremap <M-W> y
+
+set scrolloff=999
 
