@@ -376,5 +376,5 @@ nnoremap <M-W> viW
 xnoremap <M-w> y
 xnoremap <M-W> y
 
-set scrolloff=999
+inoremap <M-e> <Esc>A
 

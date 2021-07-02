@@ -556,6 +556,10 @@ _parent_dir() {
 zle -N _parent_dir
 bindkey '^U'  _parent_dir
 
+# which edit
+we() {
+  vim $(which $1)
+}
 
 
 source "$HOME/.zgen/zgen.zsh"
@@ -606,3 +610,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+alias s='status'
+alias mon='tail -f /tmp/runlog'
+run() { nohup batch_run "$@" > /tmp/runlog & tail -f /tmp/runlog}
